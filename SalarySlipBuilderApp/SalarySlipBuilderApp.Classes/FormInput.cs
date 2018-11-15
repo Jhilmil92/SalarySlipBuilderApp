@@ -26,13 +26,12 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
 {
     public class FormInput:IBuildSalarySlip
     {
-        private readonly EmployeeData _objEmployeeData;
+        private readonly InitialData _objEmployeeData;
         SalarySlipProduct _objSalarySlipProduct = new SalarySlipProduct();
-        public FormInput(EmployeeData objEmployeeData)
+        public FormInput(InitialData objEmployeeData)
         {
             _objEmployeeData = objEmployeeData;
         }
-                
         public void ComputeRules(ICollection<Rules> userAdditionComponents, ICollection<Rules> userDeductionComponents)
         {
             decimal grossSalary = 0.0m;
@@ -137,7 +136,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
             }
             _objSalarySlipProduct.ComputeRules = computedRules;
         }
-
         public void CreateTemplate(ICollection<Rules> employeePayDetails)
         {
             int beginCounter = -1;
@@ -265,41 +263,37 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
             templateBody = templateBody.Replace("$payInWords", genericBuilder.ToString());
             genericBuilder.Clear();
             templateBody = templateBody.Replace("$contentOfHeader", string.Format("<img src=\"{0}\" alt=\"{1}\">", ConfigurationManager.AppSettings[Constants.headerImage], "No Image Found"));
-            templateBody = templateBody.Replace("$contentOfFooter", FetchFooterContent() != null ? FetchFooterContent() : string.Empty);
+            templateBody = templateBody.Replace("$contentOfFooter", HelperMethods.FetchFooterContent() != null ? HelperMethods.FetchFooterContent() : string.Empty);
             _objSalarySlipProduct.CreateTemplate = templateBody;
         }
-
         public void CreateFileForTemplate(string templateContent)
         {
             string pdfFilePath = @"e:\SalarySlips\";
             string pdfFileName = string.Format("{0}{1:dd-MMM-yyyy HH-mm-ss-fff}{2}", "SalarySlip", DateTime.Now, ".pdf");
             string finalPdfPath = Path.Combine(pdfFilePath, pdfFileName);
-            _objSalarySlipProduct.CreateFileForTemplate = HtmlToPdfConverter(pdfFilePath, pdfFileName, finalPdfPath, templateContent);             
+            _objSalarySlipProduct.CreateFileForTemplate = HelperMethods.HtmlToPdfConverter(pdfFilePath, pdfFileName, finalPdfPath, templateContent);
+            _objSalarySlipProduct.FullPdfPath = finalPdfPath; 
         }
-
         public void SendEmail()
         {
             bool isMailSent = false;
-            string pdfFilePath = @"e:\SalarySlips\";
-            string pdfFileName = string.Format("{0}{1:dd-MMM-yyyy HH-mm-ss-fff}{2}", "SalarySlip", DateTime.Now, ".pdf");
-            string finalPdfPath = Path.Combine(pdfFilePath, pdfFileName);
             string senderID = "jhilmil.basu92@gmail.com";
             string senderPassword = "Jhilmil@12111992";
             RemoteCertificateValidationCallback orgCallback = ServicePointManager.ServerCertificateValidationCallback;
             string body = "Test";
             try
             {
-                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(OnValidateCertificate);
+                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(HelperMethods.OnValidateCertificate);
                 ServicePointManager.Expect100Continue = true;
                 MailMessage mail = new MailMessage();
 
-                Attachment attachment = new Attachment(finalPdfPath, MediaTypeNames.Application.Octet);
+                Attachment attachment = new Attachment(_objSalarySlipProduct.FullPdfPath, MediaTypeNames.Application.Octet);
                 ContentDisposition disposition = attachment.ContentDisposition;
-                disposition.CreationDate = File.GetCreationTime(finalPdfPath);
-                disposition.ModificationDate = File.GetLastWriteTime(finalPdfPath);
-                disposition.ReadDate = File.GetLastAccessTime(finalPdfPath);
-                disposition.FileName = Path.GetFileName(finalPdfPath);
-                disposition.Size = new FileInfo(finalPdfPath).Length;
+                disposition.CreationDate = File.GetCreationTime(_objSalarySlipProduct.FullPdfPath);
+                disposition.ModificationDate = File.GetLastWriteTime(_objSalarySlipProduct.FullPdfPath);
+                disposition.ReadDate = File.GetLastAccessTime(_objSalarySlipProduct.FullPdfPath);
+                disposition.FileName = Path.GetFileName(_objSalarySlipProduct.FullPdfPath);
+                disposition.Size = new FileInfo(_objSalarySlipProduct.FullPdfPath).Length;
                 disposition.DispositionType = DispositionTypeNames.Attachment;
                 mail.Attachments.Add(attachment);
 
@@ -322,151 +316,13 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
             }
             _objSalarySlipProduct.SendEmail = isMailSent;
         }
-
-        public bool DeleteFileAfterSendingEmail()
+        public void DeleteFileAfterSendingEmail()
         {
-            bool isFileDeleted = false;
-            try
-            {
-                if (Directory.Exists(pdfFilePath))
-                {
-                    var directory = new DirectoryInfo(pdfFilePath);
-                    foreach (var file in directory.GetFiles())
-                    {
-                        if (!(IsFileLocked(file)))
-                        {
-                            file.Delete();
-                            isFileDeleted = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            return isFileDeleted;
+            _objSalarySlipProduct.IsFileDeleted = HelperMethods.DeleteSalarySlips(_objEmployeeData.TempPdfFilePath);
         }
-
-        public string FetchFooterContent()
+        public SalarySlipProduct GetSalarySlipProduct()
         {
-            StringBuilder footerContent = new StringBuilder();
-            try
-            {
-                var fileToRead = ConfigurationManager.AppSettings[Constants.footerContent];
-                if (File.Exists(fileToRead))
-                {
-                    using (StreamReader reader = new StreamReader(fileToRead))
-                    {
-                        footerContent.Append(reader.ReadToEnd());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            return footerContent.ToString();
-        }
-
-        private void SetPathPermission(string pdfFilePath)
-        {
-            var directoryInfo = new DirectoryInfo(pdfFilePath);
-            var accessControl = directoryInfo.GetAccessControl();
-            var userIdentity = WindowsIdentity.GetCurrent();
-            var permissions = new FileSystemAccessRule(userIdentity.Name,
-                                                  FileSystemRights.FullControl,
-                                                  InheritanceFlags.ObjectInherit |
-                                                  InheritanceFlags.ContainerInherit,
-                                                  PropagationFlags.None,
-                                                  AccessControlType.Allow);
-            accessControl.AddAccessRule(permissions);
-            directoryInfo.SetAccessControl(accessControl);
-        }
-
-        public bool HtmlToPdfConverter(string pdfFilePath, string pdfFileName, string finalPdfPath, string templateContent)
-        {
-            bool status = false;
-            if (!(Directory.Exists(pdfFilePath)))
-            {
-                Directory.CreateDirectory(pdfFilePath);
-            }
-
-            SetPathPermission(pdfFilePath);
-            var htmlToPdf = new NReco.PdfGenerator.HtmlToPdfConverter();
-            htmlToPdf.CustomWkHtmlArgs = "--disable-smart-shrinking";
-            htmlToPdf.Size = PageSize.A4;
-            htmlToPdf.Orientation = NReco.PdfGenerator.PageOrientation.Portrait;
-            var pdfBytes = htmlToPdf.GeneratePdf(templateContent);
-            if (pdfBytes != null)
-            {
-                using (FileStream fileStream = new FileStream(finalPdfPath, FileMode.OpenOrCreate))
-                {
-                    fileStream.Write(pdfBytes, 0, pdfBytes.Length);
-                    fileStream.Close();
-                    status = true;
-                }
-            }
-            return status;
-        }
-
-        public static Boolean IsFileLocked(FileInfo file)
-        {
-            FileStream stream = null;
-
-            try
-            {
-                //Don't change FileAccess to ReadWrite, 
-                //because if a file is in readOnly, it fails.
-                stream = file.Open
-                (
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.None
-                );
-            }
-            catch (IOException)
-            {
-                //the file is unavailable because it is
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                return true;
-            }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
-
-            //file is not locked
-            return false;
-        }
-        private bool OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
-        }
-
-        public void DeleteSalarySlips(string pdfFilePath)
-        {
-            try
-            {
-                if (Directory.Exists(pdfFilePath))
-                {
-                    var directory = new DirectoryInfo(pdfFilePath);
-                    foreach (var file in directory.GetFiles())
-                    {
-                        if (!(IsFileLocked(file)))
-                        {
-                            file.Delete();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            return _objSalarySlipProduct;
         }
     }
 }

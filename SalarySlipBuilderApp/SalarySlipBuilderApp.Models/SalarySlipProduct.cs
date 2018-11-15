@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Models
 {
-    class SalarySlipProduct
+    public class SalarySlipProduct
     {
         public ICollection<Models.Rules> ComputeRules { get; set; }
         public string CreateTemplate { get; set; }
         public bool CreateFileForTemplate { get; set; }
         public bool SendEmail { get; set; }
+        public string FullPdfPath { get; set; }
+        public bool IsFileDeleted { get; set; }
     }
 }
