@@ -78,7 +78,7 @@
     <Compile Include="SalarySlipBuilderApp.Classes\SalarySlipDirector.cs" />
     <Compile Include="SalarySlipBuilderApp.Models\InitialData.cs" />
     <Compile Include="SalarySlipBuilderApp.Classes\FormInput.cs" />
-    <Compile Include="SalarySlipBuilderApp.Interfaces\ISalarySlipBuilder.cs" />
+    <Compile Include="SalarySlipBuilderApp.Interfaces\SalarySlip.cs" />
     <Compile Include="SalarySlipBuilderApp.Models\Rules.cs" />
     <Compile Include="SalarySlipBuilderApp.Models\SalarySlipProduct.cs" />
   </ItemGroup>

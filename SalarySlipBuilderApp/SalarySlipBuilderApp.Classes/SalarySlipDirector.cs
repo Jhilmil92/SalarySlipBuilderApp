@@ -1,4 +1,5 @@
-﻿using SalarySlipBuilderApp.SalarySlipApp.Product;
+﻿using SalarySlipBuilderApp.Models;
+using SalarySlipBuilderApp.SalarySlipBuilder.Product;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Models;
 using System;
 using System.Collections.Generic;

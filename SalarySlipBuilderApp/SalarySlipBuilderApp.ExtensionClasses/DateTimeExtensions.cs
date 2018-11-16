@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SalarySlipBuilderApp.SalarySlipApp.ExtensionClasses
+namespace SalarySlipBuilderApp.SalarySlipBuilder.ExtensionClasses
 {
     static class DateTimeExtensions
     {

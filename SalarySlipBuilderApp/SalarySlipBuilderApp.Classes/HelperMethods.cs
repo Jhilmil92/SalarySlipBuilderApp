@@ -1,5 +1,5 @@
 ﻿using NReco.PdfGenerator;
-using SalarySlipBuilderApp.SalarySlipApp.Constants;
+using SalarySlipBuilderApp.SalarySlipBuilderApp.Common;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

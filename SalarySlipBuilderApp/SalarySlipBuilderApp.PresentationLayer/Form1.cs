@@ -9,11 +9,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Models;
-using SalarySlipBuilderApp.SalarySlipApp.ExtensionClasses;
-using SalarySlipBuilderApp.SalarySlipApp.Common;
+using SalarySlipBuilderApp.SalarySlipBuilder.ExtensionClasses;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Classes;
+using SalarySlipBuilderApp.Models;
+using SalarySlipBuilderApp.Classes;
+using System.Configuration;
+using SalarySlipBuilderApp.SalarySlipBuilderApp.Common;
+using SalarySlipBuilderApp.SalarySlipBuilder.Common;
+using System.Collections.Specialized;
 
-namespace SalarySlipBuilderApp.SalarySlipApp.PresentationLayer
+namespace SalarySlipBuilderApp.SalarySlipBuilderApp.PresentationLayer
 {
     public partial class Form1 : Form
     {
@@ -72,44 +77,46 @@ namespace SalarySlipBuilderApp.SalarySlipApp.PresentationLayer
         /// <param name="e"></param>
         private void generateButton_Click(object sender, EventArgs e)
         {
+            InitialData initialData = null;
             ICollection<Rules> userAdditionComponents = null;
             ICollection<Rules> userDeductionComponents = null;
-
+            InitialData _objInitialData = new InitialData();
+            SalarySlip objSalarySlip = null;
+            //Setup
             if (salary.Text.ToString() != string.Empty)
             {
+                initialData = new InitialData();
                 decimal salaryAmount = Convert.ToDecimal(salary.Text);
-                ISalaryService salaryService = new SalaryService();
-                EmployeeDetails employeeDetails = new EmployeeDetails();
-                employeeDetails.EmployeeName = requiredName.Text.ToString();
-                employeeDetails.DateOfJoining = dateOfJoining.Text.ToString();
-                employeeDetails.PanNumber = pan.Text.ToString();
-                employeeDetails.AccountNumber = accountNumber.Text.ToString();
-                employeeDetails.Designation = designation.Text.ToString();
-                employeeDetails.Salary = salary.Text.ToString();
-                employeeDetails.EmailId = email.Text.ToString();
-                employeeDetails.Month = month.SelectedItem.ToString();
-                employeeDetails.Year = year.SelectedItem.ToString();
+                initialData.EmployeeName = requiredName.Text.ToString();
+                initialData.DateOfJoining = dateOfJoining.Text.ToString();
+                initialData.PanNumber = pan.Text.ToString();
+                initialData.AccountNumber = accountNumber.Text.ToString();
+                initialData.Designation = designation.Text.ToString();
+                initialData.Salary = salary.Text.ToString();
+                initialData.EmailId = email.Text.ToString();
+                initialData.Month = month.SelectedItem.ToString();
+                initialData.Year = year.SelectedItem.ToString();
 
                 if (addComponentNumber.Text != string.Empty)
                 {
                     List<Rules> userRules = new List<Rules>();
                     userRules = SegregateComponents(addComponentNumber, ComputationVariety.ADDITION, userRules);
                     userAdditionComponents = FetchUserComponents(addOuterPanel.Controls, ComputationVariety.ADDITION, userRules);
+                    initialData.UserAdditionComponents = userAdditionComponents;
                 }
                 if (deductComponentNumber.Text != string.Empty)
                 {
                     List<Rules> userRules = new List<Rules>();
                     userRules = SegregateComponents(deductComponentNumber, ComputationVariety.SUBTRACTION, userRules);
                     userDeductionComponents = FetchUserComponents(deductOuterPanel.Controls, ComputationVariety.SUBTRACTION, userRules);
+                    initialData.UserDeductionComponents = userDeductionComponents;
                 }
 
-                ICollection<Rules> computedRules = salaryService.ComputeRules(salaryAmount, userAdditionComponents, userDeductionComponents);
-                ICollection<Rules> finalResults = PopulateGrid(computedRules, userAdditionComponents, userDeductionComponents);
-                string templateContent = salaryService.CollectTemplateData(employeeDetails, finalResults);
+                objSalarySlip = new FormInput(_objInitialData);
+                objSalarySlip.SalarySlipProcess();
 
-                string pdfPath = salaryService.SendTemplate(employeeDetails, templateContent);
-                salaryService.DeleteSalarySlips(pdfPath);
-                //Mail Content;
+                ICollection<Rules> computedRules = _objInitialData.ComputedRules;
+                ICollection<Rules> finalResults = PopulateGrid(computedRules, userAdditionComponents, userDeductionComponents);
             }
 
         }

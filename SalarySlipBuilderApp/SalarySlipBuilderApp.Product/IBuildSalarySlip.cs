@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SalarySlipBuilderApp.SalarySlipApp.Product
+namespace SalarySlipBuilderApp.SalarySlipBuilder.Product
 {
     public interface IBuildSalarySlip
     {

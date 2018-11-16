@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
+namespace SalarySlipBuilderApp.Models
 {
     public class InitialData
     {
@@ -20,8 +20,14 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
         public string Year { get; set; }
         public string TempPdfFilePath { get; set; }
         public string TemplateContent { get; set; }
+        public string FullPdfPath { get; set; }
+        public bool CreateFileForTemplate { get; set; }
+        public double InHandSalary { get; set; }
         public ICollection<Rules> UserAdditionComponents { get; set; }
         public ICollection<Rules> UserDeductionComponents { get; set; }
         public ICollection<Rules> EmployeePayDetails { get; set; }
+        public ICollection<Rules> ComputedRules { get; set; }
+
+        public string TemplateBody { get; set; }
     }
 }

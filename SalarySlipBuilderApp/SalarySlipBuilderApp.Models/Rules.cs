@@ -1,4 +1,4 @@
-﻿using SalarySlipBuilderApp.SalarySlipApp.Common;
+﻿using SalarySlipBuilderApp.SalarySlipBuilder.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
