@@ -29,6 +29,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Humanizer, Version=2.5.0.0, Culture=neutral, PublicKeyToken=979442b78dfc278e, processorArchitecture=MSIL">
       <HintPath>..\packages\Humanizer.Core.2.5.1\lib\netstandard1.0\Humanizer.dll</HintPath>
@@ -66,12 +69,6 @@
     <Compile Include="SalarySlipBuilderApp.Common\Enums.cs" />
     <Compile Include="SalarySlipBuilderApp.ExtensionClasses\DateTimeExtensions.cs" />
     <Compile Include="SalarySlipBuilderApp.ExtensionClasses\LinqExtensions.cs" />
-    <Compile Include="SalarySlipBuilderApp.PresentationLayer\Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SalarySlipBuilderApp.PresentationLayer\Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="SalarySlipBuilderApp.Product\IBuildSalarySlip.cs" />
     <Compile Include="SalarySlipBuilderApp.Classes\HelperMethods.cs" />
     <Compile Include="SalarySlipBuilderApp.Classes\RegularExpressionValidator.cs" />
@@ -91,6 +88,9 @@
       <Project>{b6b1dbee-7a43-4097-8642-2073486d10eb}</Project>
       <Name>TemplateApp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SalarySlipBuilderApp.PresentationLayer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

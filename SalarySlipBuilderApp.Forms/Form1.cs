@@ -18,7 +18,7 @@ using SalarySlipBuilderApp.SalarySlipBuilderApp.Common;
 using SalarySlipBuilderApp.SalarySlipBuilder.Common;
 using System.Collections.Specialized;
 
-namespace SalarySlipBuilderApp.SalarySlipBuilderApp.PresentationLayer
+namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
 {
     public partial class Form1 : Form
     {

@@ -1,4 +1,4 @@
-﻿namespace SalarySlipBuilderApp.SalarySlipBuilderApp.PresentationLayer
+﻿namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
 {
     partial class Form1
     {

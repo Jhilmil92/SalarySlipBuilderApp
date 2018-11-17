@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SalarySlipBuilderApp.SalarySlipBuilder.ExtensionClasses
 {
-    static class DateTimeExtensions
+   public static class DateTimeExtensions
     {
         public static string ToMonthName(this DateTime dateTime)
         {
