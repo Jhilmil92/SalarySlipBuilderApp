@@ -80,7 +80,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             InitialData initialData = null;
             ICollection<Rules> userAdditionComponents = null;
             ICollection<Rules> userDeductionComponents = null;
-            InitialData _objInitialData = new InitialData();
             SalarySlip objSalarySlip = null;
             //Setup
             if (salary.Text.ToString() != string.Empty)
@@ -112,10 +111,10 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                     initialData.UserDeductionComponents = userDeductionComponents;
                 }
 
-                objSalarySlip = new FormInput(_objInitialData);
+                objSalarySlip = new FormInput(initialData);
                 objSalarySlip.SalarySlipProcess();
 
-                ICollection<Rules> computedRules = _objInitialData.ComputedRules;
+                ICollection<Rules> computedRules = initialData.ComputedRules;
                 ICollection<Rules> finalResults = PopulateGrid(computedRules, userAdditionComponents, userDeductionComponents);
             }
 

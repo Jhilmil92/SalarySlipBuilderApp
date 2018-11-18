@@ -14,7 +14,7 @@ namespace TemplateApp.TemplateApp.Classes
         public System.IO.StreamReader SupplyTemplateStream()
         {
             var currentAssembly = typeof(ITemplateProvider).Assembly;
-            _stream = new StreamReader(currentAssembly.GetManifestResourceStream("TemplateApplication.Templates.SalarySlipTemplate.html"));
+            _stream = new StreamReader(currentAssembly.GetManifestResourceStream("TemplateApp.TemplateApp.Templates.SalarySlipTemplate.html"));
             return _stream;
         }
 

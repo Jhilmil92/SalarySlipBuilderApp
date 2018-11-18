@@ -138,7 +138,6 @@ namespace SalarySlipBuilderApp.Models
 
                 if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
                 {
-                    decimal userDeductionComponentTotal = 0.0m;
                     foreach (var component in userDeductionComponents)
                     {
                         computedRules.Add(new Rules
@@ -147,8 +146,7 @@ namespace SalarySlipBuilderApp.Models
                             RuleName = component.RuleName,
                             RuleValue = component.RuleValue
                         });
-                        userDeductionComponentTotal += component.RuleValue;
-                        subtractionTotal += userDeductionComponentTotal; //newly added.
+                        subtractionTotal += component.RuleValue; //newly added.
                     }
                 }
 
@@ -306,7 +304,7 @@ namespace SalarySlipBuilderApp.Models
             genericBuilder.Clear();
             templateBody = templateBody.Replace("$contentOfHeader", string.Format("<img src=\"{0}\" alt=\"{1}\">", ConfigurationManager.AppSettings[Constants.headerImage], "No Image Found"));
             templateBody = templateBody.Replace("$contentOfFooter", HelperMethods.FetchFooterContent() != null ? HelperMethods.FetchFooterContent() : string.Empty);
-            _objInitialData.TemplateBody = templateBody;
+            _objInitialData.TemplateContent = templateBody;
         }
 
         void CreateFileForTemplate(string templateContent)

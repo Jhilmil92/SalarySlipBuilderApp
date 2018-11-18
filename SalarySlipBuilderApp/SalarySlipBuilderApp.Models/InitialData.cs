@@ -27,7 +27,5 @@ namespace SalarySlipBuilderApp.Models
         public ICollection<Rules> UserDeductionComponents { get; set; }
         public ICollection<Rules> EmployeePayDetails { get; set; }
         public ICollection<Rules> ComputedRules { get; set; }
-
-        public string TemplateBody { get; set; }
     }
 }
