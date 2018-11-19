@@ -155,14 +155,16 @@ namespace SalarySlipBuilderApp.Models
                     computedRules.Add(new Rules
                     {
                         ComputationName = ComputationVariety.ADDITION,
-                        RuleName = Constants.additionTotal,
+                        //RuleName = Constants.additionTotal, //Make this gross salary.
+                        RuleName = Constants.grossSalary,
                         RuleValue = grossSalary
                     }
                     );
                     computedRules.Add(new Rules
                     {
                         ComputationName = ComputationVariety.SUBTRACTION,
-                        RuleName = Constants.subtractionTotal,
+                        //RuleName = Constants.subtractionTotal, //Make this total deduction.
+                        RuleName = Constants.totalDeduction,
                         RuleValue = subtractionTotal
                     });
                     computedRules.Add(new Rules

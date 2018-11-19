@@ -222,6 +222,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                 {
                     if (dataTable.Columns.Contains(Constants.addition) && dataTable.Columns.Contains(Constants.additionTotal))
                     {
+
                         int totalCount = 0;
                         if ((additionSectionCollection != null) && (additionSectionCollection.Count > 0))
                         {
@@ -243,18 +244,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                             dataRow.ItemArray = additionArray;
                             dataTable.Rows.Add(dataRow);
                         }
-
-                        //for(int j = 0 ; j < userAdditionComponents.Count; j++)
-                        //{
-                        //    var test = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName == userDeductionComponents.ElementAt(j).RuleName).Select(a => a.RuleName).ToArray();
-                        //    object[] additionArray = new object[2];
-                        //    additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName == userDeductionComponents.ElementAt(j).RuleName).Select(a => a.RuleName).ToArray().ElementAt(0);
-                        //    additionArray[1] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION).ElementAt(j).RuleValue;
-                        //    additionSum += Convert.ToDecimal(additionArray[1]);
-                        //    DataRow dataRow = dataTable.NewRow();
-                        //    dataRow.ItemArray = additionArray;
-                        //    dataTable.Rows.Add(dataRow);
-                        //}
                     }
 
                     //End of addition.
@@ -272,6 +261,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                         {
                             totalCount += userDeductionComponents.Count;
                         }
+
                         if (dataTable.Rows.Count != 0)
                         {
                             for (int i = 0; i < totalCount; i++)
