@@ -155,7 +155,6 @@ namespace SalarySlipBuilderApp.Models
                     computedRules.Add(new Rules
                     {
                         ComputationName = ComputationVariety.ADDITION,
-                        //RuleName = Constants.additionTotal, //Make this gross salary.
                         RuleName = Constants.grossSalary,
                         RuleValue = grossSalary
                     }
@@ -163,7 +162,6 @@ namespace SalarySlipBuilderApp.Models
                     computedRules.Add(new Rules
                     {
                         ComputationName = ComputationVariety.SUBTRACTION,
-                        //RuleName = Constants.subtractionTotal, //Make this total deduction.
                         RuleName = Constants.totalDeduction,
                         RuleValue = subtractionTotal
                     });
@@ -178,7 +176,6 @@ namespace SalarySlipBuilderApp.Models
             _objInitialData.ComputedRules = computedRules;
         }
 
-        //void CreateTemplate(ICollection<Rules> employeePayDetails)
         void CreateTemplate()
         {
             int beginCounter = -1;
@@ -201,13 +198,10 @@ namespace SalarySlipBuilderApp.Models
             templateBody = templateBody.Replace("$month", _objInitialData.Month.ToUpper());
             templateBody = templateBody.Replace("$year", _objInitialData.Year);
 
-            //New set of code -- Start.
-
-            var additionPayDetails = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.ADDITION) && (a.RuleName != Constants.netPay && a.RuleName != Constants.additionTotal)).ToArray();
-            var deductionPayDetails = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.SUBTRACTION) && (a.RuleName != Constants.subtractionTotal)).ToArray();
-            var additionTotal = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.ADDITION) && (a.RuleName == Constants.additionTotal)).ToArray();
-            var deductionTotal = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.SUBTRACTION) && (a.RuleName == Constants.subtractionTotal)).ToArray();
-
+            var additionPayDetails = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.ADDITION) && (a.RuleName != Constants.netPay && a.RuleName != Constants.grossSalary)).ToArray();
+            var deductionPayDetails = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.SUBTRACTION) && (a.RuleName != Constants.totalDeduction)).ToArray();
+            var additionTotal = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.ADDITION) && (a.RuleName == Constants.grossSalary)).ToArray();
+            var deductionTotal = _objInitialData.ComputedRules.Where(a => (a.ComputationName == ComputationVariety.SUBTRACTION) && (a.RuleName == Constants.totalDeduction)).ToArray();
 
             if ((additionPayDetails != null && additionPayDetails.Count() > 0) && (deductionPayDetails != null && deductionPayDetails.Count() > 0))
             {
@@ -292,7 +286,6 @@ namespace SalarySlipBuilderApp.Models
                 templateBody = templateBody.Replace("$additionAndDeductionComponents", string.Empty);
             }
             genericBuilder.Clear();
-            //New set of code -- Stop.
 
             var details = _objInitialData.ComputedRules.Where(a => a.RuleName == Constants.netPay).Select(a => a).ToList();
             var ruleValue = details[0].RuleValue.ToString("#,#.##", System.Globalization.CultureInfo.CreateSpecificCulture("hi-IN"));

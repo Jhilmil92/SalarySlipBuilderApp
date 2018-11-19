@@ -22,7 +22,6 @@ namespace SalarySlipBuilderApp.Models
         public string TemplateContent { get; set; }
         public string FullPdfPath { get; set; }
         public bool CreateFileForTemplate { get; set; }
-        public double InHandSalary { get; set; }
         public ICollection<Rules> UserAdditionComponents { get; set; }
         public ICollection<Rules> UserDeductionComponents { get; set; }
         public ICollection<Rules> EmployeePayDetails { get; set; }
