@@ -246,7 +246,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                         }
                     }
 
-                    //End of addition.
 
                     if (dataTable.Columns.Contains(Constants.subtraction) && dataTable.Columns.Contains(Constants.subtractionTotal))
                     {
@@ -369,10 +368,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                         }
                     }
                     dataGridView.DataSource = dataTable;
-                    dataGridView.Columns[Constants.addition].Width = 15;
-                    dataGridView.Columns[Constants.subtraction].Width = 15;
                     this.Width = 583;
-                    // this.Height = 497;
                     this.Height = 550;
                     dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                     dataGridView.Show();
