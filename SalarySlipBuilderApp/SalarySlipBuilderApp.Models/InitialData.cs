@@ -21,6 +21,7 @@ namespace SalarySlipBuilderApp.Models
         public string TempPdfFilePath { get; set; }
         public string TemplateContent { get; set; }
         public string FullPdfPath { get; set; }
+        public string PdfFilePath { get; set; }
         public bool CreateFileForTemplate { get; set; }
         public ICollection<Rules> UserAdditionComponents { get; set; }
         public ICollection<Rules> UserDeductionComponents { get; set; }

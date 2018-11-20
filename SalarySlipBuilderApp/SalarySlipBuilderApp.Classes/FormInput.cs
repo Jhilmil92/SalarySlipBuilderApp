@@ -2,7 +2,6 @@
 using NReco.PdfGenerator;
 using SalarySlipBuilderApp.Models;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Common;
-using SalarySlipBuilderApp.SalarySlipBuilder.Product;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Models;
 using System;
 using System.Collections.Generic;

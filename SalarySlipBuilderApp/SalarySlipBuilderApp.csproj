@@ -68,19 +68,14 @@
     <Compile Include="SalarySlipBuilderApp.Common\Constants.cs" />
     <Compile Include="SalarySlipBuilderApp.Common\Enums.cs" />
     <Compile Include="SalarySlipBuilderApp.ExtensionClasses\DateTimeExtensions.cs" />
-    <Compile Include="SalarySlipBuilderApp.ExtensionClasses\LinqExtensions.cs" />
-    <Compile Include="SalarySlipBuilderApp.Product\IBuildSalarySlip.cs" />
     <Compile Include="SalarySlipBuilderApp.Classes\HelperMethods.cs" />
     <Compile Include="SalarySlipBuilderApp.Classes\RegularExpressionValidator.cs" />
-    <Compile Include="SalarySlipBuilderApp.Classes\SalarySlipDirector.cs" />
     <Compile Include="SalarySlipBuilderApp.Models\InitialData.cs" />
     <Compile Include="SalarySlipBuilderApp.Classes\FormInput.cs" />
     <Compile Include="SalarySlipBuilderApp.Interfaces\SalarySlip.cs" />
     <Compile Include="SalarySlipBuilderApp.Models\Rules.cs" />
-    <Compile Include="SalarySlipBuilderApp.Models\SalarySlipProduct.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

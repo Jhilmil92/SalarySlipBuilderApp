@@ -1,7 +1,6 @@
 ﻿using Humanizer;
 using SalarySlipBuilderApp.SalarySlipBuilder.Common;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Common;
-using SalarySlipBuilderApp.SalarySlipBuilder.Product;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Classes;
 using SalarySlipBuilderApp.SalarySlipBuilderApp.Models;
 using System;
@@ -304,20 +303,22 @@ namespace SalarySlipBuilderApp.Models
 
         void CreateFileForTemplate(string templateContent)
         {
-            string pdfFilePath = @"e:\SalarySlips\";
+            //string pdfFilePath = @"e:\SalarySlips\";
+            string pdfFilePath = string.Format("{0}{1}", Path.GetTempPath(), "SalarySlips");
             string pdfFileName = string.Format("{0}{1:dd-MMM-yyyy HH-mm-ss-fff}{2}", "SalarySlip", DateTime.Now, ".pdf");
             string finalPdfPath = Path.Combine(pdfFilePath, pdfFileName);
             _objInitialData.CreateFileForTemplate = HelperMethods.HtmlToPdfConverter(pdfFilePath, pdfFileName, finalPdfPath, templateContent);
             _objInitialData.FullPdfPath = finalPdfPath;
+            _objInitialData.PdfFilePath = pdfFilePath;
         }
 
         void SendEmail()
         {
             bool isMailSent = false;
-            string senderID = "jhilmil.basu92@gmail.com";
-            string senderPassword = "Jhilmil@12111992";
+            string senderID = ConfigurationManager.AppSettings[Constants.senderEmailId];
+            string senderPassword = ConfigurationManager.AppSettings[Constants.senderEmailPassword];
             RemoteCertificateValidationCallback orgCallback = ServicePointManager.ServerCertificateValidationCallback;
-            string body = "Test";
+            string mailBody = "Test";
             try
             {
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(HelperMethods.OnValidateCertificate);
@@ -340,10 +341,10 @@ namespace SalarySlipBuilderApp.Models
                 mail.Body = "Salary Slip";
                 mail.IsBodyHtml = true;
                 SmtpClient smtp = new SmtpClient();
-                smtp.Host = "smtp.gmail.com";
+                smtp.Host = ConfigurationManager.AppSettings[Constants.smtpHost];
                 smtp.Credentials = new System.Net.NetworkCredential(senderID, senderPassword);
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
+                smtp.Port = Convert.ToInt32(ConfigurationManager.AppSettings[Constants.smtpPort]);
+                smtp.EnableSsl = Convert.ToBoolean(ConfigurationManager.AppSettings[Constants.enableSsl]);
                 smtp.Send(mail);
                 isMailSent = true;
             }
@@ -357,9 +358,9 @@ namespace SalarySlipBuilderApp.Models
         {
             try
             {
-                if (Directory.Exists(_objInitialData.FullPdfPath))
+                if (Directory.Exists(_objInitialData.PdfFilePath))
                 {
-                    var directory = new DirectoryInfo(_objInitialData.FullPdfPath);
+                    var directory = new DirectoryInfo(_objInitialData.PdfFilePath);
                     foreach (var file in directory.GetFiles())
                     {
                         if (!(HelperMethods.IsFileLocked(file)))

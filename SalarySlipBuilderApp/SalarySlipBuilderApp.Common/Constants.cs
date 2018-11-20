@@ -27,5 +27,10 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Common
         public const string netPay = "Net Pay";
         public const string headerImage = "pdfHeaderImage";
         public const string footerContent = "footerContent";
+        public const string senderEmailId = "senderEmailID";
+        public const string senderEmailPassword = "senderEmailPassword";
+        public const string smtpHost = "smtpHost";
+        public const string smtpPort = "smtpPort";
+        public const string enableSsl = "enableSsl";
     }
 }
