@@ -32,5 +32,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Common
         public const string smtpHost = "smtpHost";
         public const string smtpPort = "smtpPort";
         public const string enableSsl = "enableSsl";
+        public const string emailSubject = "emailSubject";
     }
 }

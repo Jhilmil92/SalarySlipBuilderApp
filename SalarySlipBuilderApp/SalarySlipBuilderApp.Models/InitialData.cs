@@ -9,6 +9,7 @@ namespace SalarySlipBuilderApp.Models
 {
     public class InitialData
     {
+        public string AssociateCode { get; set; }
         public string EmployeeName { get; set; }
         public string DateOfJoining { get; set; }
         public string PanNumber { get; set; }

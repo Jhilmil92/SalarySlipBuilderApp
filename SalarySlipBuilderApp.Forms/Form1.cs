@@ -32,7 +32,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             dataGridView.Hide();
             addOuterPanel.Hide();
             deductOuterPanel.Hide();
-            requiredName.Select();
+            associateCode.Select();
             addOuterPanel.Controls.Clear();
             deductOuterPanel.Controls.Clear();
             PopulateMonths();
@@ -86,6 +86,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             {
                 initialData = new InitialData();
                 decimal salaryAmount = Convert.ToDecimal(salary.Text);
+                initialData.AssociateCode = associateCode.Text.ToString();
                 initialData.EmployeeName = requiredName.Text.ToString();
                 initialData.DateOfJoining = dateOfJoining.Text.ToString();
                 initialData.PanNumber = pan.Text.ToString();

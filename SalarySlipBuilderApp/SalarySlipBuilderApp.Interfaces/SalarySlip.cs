@@ -188,6 +188,7 @@ namespace SalarySlipBuilderApp.Models
                 templateBody = templateApplication.SupplyTemplateStream().ReadToEnd();
             }
 
+            templateBody = templateBody.Replace("$associateCode", _objInitialData.AssociateCode);
             templateBody = templateBody.Replace("$dateOfJoining", _objInitialData.DateOfJoining);
             templateBody = templateBody.Replace("$panNumber", _objInitialData.PanNumber);
             templateBody = templateBody.Replace("$name", _objInitialData.EmployeeName);
@@ -238,7 +239,7 @@ namespace SalarySlipBuilderApp.Models
                             endCounter++;
                         }
                     }
-                    else if (i < additionPayDetails.Count() && i == deductionPayDetails.Count())
+                    else if (i < additionPayDetails.Count() && i >= deductionPayDetails.Count())
                     {
                         if (additionPayDetails[i] != null)
                         {
@@ -256,7 +257,6 @@ namespace SalarySlipBuilderApp.Models
                             endCounter++;
                         }
                     }
-
                 }
             }
             if (endCounter == largerListCount - 1)
@@ -318,7 +318,6 @@ namespace SalarySlipBuilderApp.Models
             string senderID = ConfigurationManager.AppSettings[Constants.senderEmailId];
             string senderPassword = ConfigurationManager.AppSettings[Constants.senderEmailPassword];
             RemoteCertificateValidationCallback orgCallback = ServicePointManager.ServerCertificateValidationCallback;
-            string mailBody = "Test";
             try
             {
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(HelperMethods.OnValidateCertificate);
@@ -337,7 +336,7 @@ namespace SalarySlipBuilderApp.Models
 
                 mail.To.Add(_objInitialData.EmailId);
                 mail.From = new MailAddress(senderID);
-                mail.Subject = "My Test Email!";
+                mail.Subject = ConfigurationManager.AppSettings[Constants.emailSubject];
                 mail.Body = "Salary Slip";
                 mail.IsBodyHtml = true;
                 SmtpClient smtp = new SmtpClient();
