@@ -48,6 +48,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
         }
         public static string FetchFooterContent()
         {
+            string line = null;
             StringBuilder footerContent = new StringBuilder();
             try
             {
@@ -56,7 +57,10 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
                 {
                     using (StreamReader reader = new StreamReader(fileToRead))
                     {
-                        footerContent.Append(reader.ReadToEnd());
+                        while((line = reader.ReadLine()) != null)
+                        {
+                            footerContent.AppendLine(line).Replace("\r\n","<br/>");
+                        }
                     }
                 }
             }

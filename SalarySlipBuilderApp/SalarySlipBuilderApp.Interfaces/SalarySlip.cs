@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TemplateApp.TemplateApp.Classes;
 using TemplateApp.TemplateApp.Interfaces;
+using System.Globalization;
 
 namespace SalarySlipBuilderApp.Models
 {
@@ -359,7 +360,7 @@ namespace SalarySlipBuilderApp.Models
 
                 mail.To.Add(_objInitialData.EmailId);
                 mail.From = new MailAddress(senderID);
-                mail.Subject = ConfigurationManager.AppSettings[Constants.emailSubject];
+                mail.Subject = ConfigurationManager.AppSettings[Constants.emailSubject].Replace("$Month", _objInitialData.Month.Pascalize()).Replace("$Year", _objInitialData.Year.Pascalize());
                 mail.Body = "Salary Slip";
                 mail.IsBodyHtml = true;
                 SmtpClient smtp = new SmtpClient();
