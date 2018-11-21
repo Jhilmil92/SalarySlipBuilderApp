@@ -209,6 +209,8 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             DataGridView dataGridView = this.dataGridView;
             var additionSectionCollection = ConfigurationManager.GetSection(Constants.additionSection) as NameValueCollection;
             var subtractionSectionCollection = ConfigurationManager.GetSection(Constants.subtractionSection) as NameValueCollection;
+            //IList<Rules> additionCounterpartRules = null;
+            //IList<Rules> subtractionCounterpartRules = null;
 
             if ((dataGridView != null))
             {
@@ -235,11 +237,19 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                             totalCount += userAdditionComponents.Count;
                         }
 
+                        //if ((computedRules != null) && (computedRules.Count() > 0))
+                        //{
+                        //    additionCounterpartRules = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ToList();
+                        //    totalCount = additionCounterpartRules.Count();
+                        //}
+
                         for (int i = 0; i < totalCount; i++)
                         {
                             object[] additionArray = new object[2];
-                            additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION).ElementAt(i).RuleName;
-                            additionArray[1] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION).ElementAt(i).RuleValue;
+                            additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleName;
+                            additionArray[1] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleValue;
+                            //additionArray[0] = additionCounterpartRules[i].RuleName;
+                            //additionArray[1] = additionCounterpartRules[i].RuleValue;
                             additionSum += Convert.ToDecimal(additionArray[1]);
                             DataRow dataRow = dataTable.NewRow();
                             dataRow.ItemArray = additionArray;

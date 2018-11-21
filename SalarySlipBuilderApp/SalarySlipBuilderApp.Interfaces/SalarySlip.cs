@@ -43,10 +43,12 @@ namespace SalarySlipBuilderApp.Models
             decimal grossSalary = 0.0m;
             decimal componentAmount = 0.0m;
             decimal subtractionTotal = 0.0m;
+            decimal remainingSalary = 0.0m;
             StringBuilder componentValueAsString = new StringBuilder();
             ICollection<Rules> computedRules = new List<Rules>();
             decimal salary = Convert.ToDecimal(_objInitialData.Salary);
             var additionSectionCollection = ConfigurationManager.GetSection(Constants.additionSection) as NameValueCollection;
+            decimal additionComponentPercentageTotal = 0.0m;
             if ((additionSectionCollection != null) && (additionSectionCollection.Count > 0))
             {
 
@@ -59,6 +61,7 @@ namespace SalarySlipBuilderApp.Models
                         {
                             componentValueAsString.Append(additionSectionCollection[component]);
                             componentAmount = Convert.ToDecimal(componentValueAsString.Remove(componentValueAsString.Length - 1, 1).ToString());
+                            additionComponentPercentageTotal += componentAmount;
                             componentAmount = Decimal.Round(((componentAmount) / 100) * salary, 2);
                         }
                         else if (!(char.IsLetter(additionSectionCollection[component].ToString(), 0)))
@@ -77,17 +80,37 @@ namespace SalarySlipBuilderApp.Models
 
                 }
 
+                //if (computedRules != null && computedRules.Count > 0)
+                //{
+                //    decimal remainingSalary = salary - grossSalary;
+                //    computedRules.Add(new Rules
+                //    {
+                //        ComputationName = ComputationVariety.ADDITION,
+                //        RuleName = Constants.balance,
+                //        RuleValue = remainingSalary
+                //    });
+                //    grossSalary += remainingSalary;
+                //}
+
+                //Test Code Start.
                 if (computedRules != null && computedRules.Count > 0)
                 {
-                    decimal remainingSalary = salary - grossSalary;
-                    computedRules.Add(new Rules
+                    if (additionComponentPercentageTotal < 100.00m)//add round
                     {
-                        ComputationName = ComputationVariety.ADDITION,
-                        RuleName = Constants.balance,
-                        RuleValue = remainingSalary
-                    });
-                    grossSalary += remainingSalary;
+                        if (additionSectionCollection.AllKeys.Contains(Constants.balance))
+                        {
+                            remainingSalary = salary - grossSalary;
+                            computedRules.Add(new Rules
+                            {
+                                ComputationName = ComputationVariety.ADDITION,
+                                RuleName = Constants.balance,
+                                RuleValue = remainingSalary
+                            });
+                            grossSalary += remainingSalary;
+                        }
+                    }
                 }
+                //Test Code End.
 
                 //Add additional components to the gross salary.
                 if ((userAdditionComponents != null) && (userAdditionComponents.Count > 0))
