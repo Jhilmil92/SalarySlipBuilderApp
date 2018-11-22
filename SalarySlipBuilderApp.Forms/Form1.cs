@@ -232,7 +232,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                             additiontotalRowsCount = additionSectionCollection.Count;
                         }
 
-                        if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
+                        if ((userAdditionComponents != null) && (userAdditionComponents.Count > 0))
                         {
                             additiontotalRowsCount += userAdditionComponents.Count;
                         }
