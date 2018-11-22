@@ -221,20 +221,20 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                 new DataColumn(Constants.subtraction, typeof(string)),
                 new DataColumn(Constants.subtractionTotal, typeof(decimal))});
 
-                if ((dataTable != null) && dataTable.Columns.Count > 0)
-                {
-                    if (dataTable.Columns.Contains(Constants.addition) && dataTable.Columns.Contains(Constants.additionTotal))
-                    {
+                //if ((dataTable != null) && dataTable.Columns.Count > 0)
+                //{
+                    //if (dataTable.Columns.Contains(Constants.addition) && dataTable.Columns.Contains(Constants.additionTotal))
+                   // {
 
-                        int totalCount = 0;
+                        int additiontotalRowsCount = 0;
                         if ((additionSectionCollection != null) && (additionSectionCollection.Count > 0))
                         {
-                            totalCount = additionSectionCollection.Count;
+                            additiontotalRowsCount = additionSectionCollection.Count;
                         }
 
                         if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
                         {
-                            totalCount += userAdditionComponents.Count;
+                            additiontotalRowsCount += userAdditionComponents.Count;
                         }
 
                         //if ((computedRules != null) && (computedRules.Count() > 0))
@@ -243,7 +243,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                         //    totalCount = additionCounterpartRules.Count();
                         //}
 
-                        for (int i = 0; i < totalCount; i++)
+                        for (int i = 0; i < additiontotalRowsCount; i++)
                         {
                             object[] additionArray = new object[2];
                             additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleName;
@@ -255,29 +255,29 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                             dataRow.ItemArray = additionArray;
                             dataTable.Rows.Add(dataRow);
                         }
-                    }
+                    //}
 
 
-                    if (dataTable.Columns.Contains(Constants.subtraction) && dataTable.Columns.Contains(Constants.subtractionTotal))
-                    {
+                    //if (dataTable.Columns.Contains(Constants.subtraction) && dataTable.Columns.Contains(Constants.subtractionTotal))
+                    //{
                         int computedRuleCounter = 0;
-                        int totalCount = 0;
+                        int subtractiontotalRowsCount = 0;
                         if ((subtractionSectionCollection != null) && (subtractionSectionCollection.Count > 0))
                         {
-                            totalCount = subtractionSectionCollection.Count;
+                            subtractiontotalRowsCount = subtractionSectionCollection.Count;
                         }
 
                         if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
                         {
-                            totalCount += userDeductionComponents.Count;
+                            subtractiontotalRowsCount += userDeductionComponents.Count;
                         }
 
                         if (dataTable.Rows.Count != 0)
                         {
-                            for (int i = 0; i < totalCount; i++)
+                            for (int i = 0; i < subtractiontotalRowsCount; i++)
                             {
                                 //If there are more subtraction components than the addition component or there are only subtraction components.
-                                if (dataTable.Rows.Count < totalCount)
+                                if (dataTable.Rows.Count < subtractiontotalRowsCount)
                                 {
                                     break;
                                 }
@@ -287,9 +287,9 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                                 subtractionSum += Convert.ToDecimal(dataTable.Rows[i][Constants.subtractionTotal]);
                             }
 
-                            if (computedRuleCounter != totalCount)
+                            if (computedRuleCounter != subtractiontotalRowsCount)
                             {
-                                for (int i = computedRuleCounter; i < totalCount; i++)
+                                for (int i = computedRuleCounter; i < subtractiontotalRowsCount; i++)
                                 {
                                     DataRow dataRow = dataTable.NewRow();
                                     dataRow[Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
@@ -311,7 +311,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                                 dataTable.Rows.Add(dataRow);
                             }
                         }
-                    }
+                   // }
                     //End of subtraction.
 
                     if (dataTable.Rows.Count > 0)
@@ -383,7 +383,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                     this.Height = 550;
                     dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                     dataGridView.Show();
-                }
+                //}
 
             }
             return computedRules;
