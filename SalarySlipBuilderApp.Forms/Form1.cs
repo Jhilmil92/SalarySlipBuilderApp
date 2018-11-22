@@ -209,8 +209,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             DataGridView dataGridView = this.dataGridView;
             var additionSectionCollection = ConfigurationManager.GetSection(Constants.additionSection) as NameValueCollection;
             var subtractionSectionCollection = ConfigurationManager.GetSection(Constants.subtractionSection) as NameValueCollection;
-            //IList<Rules> additionCounterpartRules = null;
-            //IList<Rules> subtractionCounterpartRules = null;
 
             if ((dataGridView != null))
             {
@@ -221,15 +219,11 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                 new DataColumn(Constants.subtraction, typeof(string)),
                 new DataColumn(Constants.subtractionTotal, typeof(decimal))});
 
-                //if ((dataTable != null) && dataTable.Columns.Count > 0)
-                //{
-                    //if (dataTable.Columns.Contains(Constants.addition) && dataTable.Columns.Contains(Constants.additionTotal))
-                   // {
 
                         int additiontotalRowsCount = 0;
                         if ((additionSectionCollection != null) && (additionSectionCollection.Count > 0))
                         {
-                            additiontotalRowsCount = additionSectionCollection.Count;
+                            additiontotalRowsCount = computedRules.Where(a => (additionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
                         }
 
                         if ((userAdditionComponents != null) && (userAdditionComponents.Count > 0))
@@ -237,34 +231,22 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                             additiontotalRowsCount += userAdditionComponents.Count;
                         }
 
-                        //if ((computedRules != null) && (computedRules.Count() > 0))
-                        //{
-                        //    additionCounterpartRules = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ToList();
-                        //    totalCount = additionCounterpartRules.Count();
-                        //}
-
                         for (int i = 0; i < additiontotalRowsCount; i++)
                         {
                             object[] additionArray = new object[2];
                             additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleName;
                             additionArray[1] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleValue;
-                            //additionArray[0] = additionCounterpartRules[i].RuleName;
-                            //additionArray[1] = additionCounterpartRules[i].RuleValue;
                             additionSum += Convert.ToDecimal(additionArray[1]);
                             DataRow dataRow = dataTable.NewRow();
                             dataRow.ItemArray = additionArray;
                             dataTable.Rows.Add(dataRow);
                         }
-                    //}
 
-
-                    //if (dataTable.Columns.Contains(Constants.subtraction) && dataTable.Columns.Contains(Constants.subtractionTotal))
-                    //{
                         int computedRuleCounter = 0;
                         int subtractiontotalRowsCount = 0;
                         if ((subtractionSectionCollection != null) && (subtractionSectionCollection.Count > 0))
                         {
-                            subtractiontotalRowsCount = subtractionSectionCollection.Count;
+                            subtractiontotalRowsCount = computedRules.Where(a => (subtractionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
                         }
 
                         if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
@@ -311,13 +293,11 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                                 dataTable.Rows.Add(dataRow);
                             }
                         }
-                   // }
                     //End of subtraction.
 
                     if (dataTable.Rows.Count > 0)
                     {
                         DataRow totalDataRow = null;
-                        // DataRow[] additionDataRows = dataTable.Select("Addition <> '' && AdditionTotal <> ''").TakeWhile(a=>a.ItemArray.ToList().Where(a=>a.ad));
                         var additionDataRows = dataTable.AsEnumerable()
                             .Where(w => (w.Field<string>(Constants.addition) != null && w.Field<string>(Constants.addition) != string.Empty)
                              && (w.Field<decimal>(Constants.additionTotal) != null))

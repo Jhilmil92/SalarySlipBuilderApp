@@ -21,7 +21,19 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
 
         }
 
-        public static bool HtmlToPdfConverter(string pdfFilePath, string pdfFileName, string finalPdfPath, string templateContent)
+        /// <summary>
+        /// Responsible for carrying out the conversion of an html file to a pdf file.
+        /// Firstly, it creates a directory called SalarySlips in the temp folder path of the local machine if directory doesn't exist
+        /// ,to temporarily store the pdf format of the html file. This directory's path including itself is given the necessary permissions.
+        /// The template control which is in html format at this point is then converted into pdf format using Nreco PdfGenerator package.
+        /// A stream is opened to the file where the pdf byte equivalent is to be written to and stored in the temporary path of the machine.
+        /// </summary>
+        /// <param name="pdfFilePath">The temporary file path where the generated salary slip is to be stored.</param>
+        /// <param name="finalPdfPath">The complete path of where the pdf file is to be dtored. It includes the name of the pdf file itself,
+        /// which if doesn't exist, is created.</param>
+        /// <param name="templateContent">The html content which is to be converted to its pdf equivalent.</param>
+        /// <returns>A boolean value indicating whether the pdf file was successfully created.</returns>
+        public static bool HtmlToPdfConverter(string pdfFilePath,string finalPdfPath, string templateContent)
         {
             bool isPdfFileCreated = false;
             if (!(Directory.Exists(pdfFilePath)))
@@ -46,6 +58,12 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
             }
             return isPdfFileCreated;
         }
+
+        /// <summary>
+        /// Responsible for fetching the footer content for the html content and the pdf file, line by line from
+        /// a file whose path is mentioned in the application configuration settings file.
+        /// </summary>
+        /// <returns>The contents which have been read from the file, line by line.</returns>
         public static string FetchFooterContent()
         {
             string line = null;

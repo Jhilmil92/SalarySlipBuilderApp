@@ -331,7 +331,7 @@ namespace SalarySlipBuilderApp.Models
             string pdfFilePath = string.Format("{0}{1}", Path.GetTempPath(), "SalarySlips");
             string pdfFileName = string.Format("{0}{1:dd-MMM-yyyy HH-mm-ss-fff}{2}", "SalarySlip", DateTime.Now, ".pdf");
             string finalPdfPath = Path.Combine(pdfFilePath, pdfFileName);
-            _objInitialData.CreateFileForTemplate = HelperMethods.HtmlToPdfConverter(pdfFilePath, pdfFileName, finalPdfPath, templateContent);
+            _objInitialData.CreateFileForTemplate = HelperMethods.HtmlToPdfConverter(pdfFilePath,finalPdfPath, templateContent);
             _objInitialData.FullPdfPath = finalPdfPath;
             _objInitialData.PdfFilePath = pdfFilePath;
         }
