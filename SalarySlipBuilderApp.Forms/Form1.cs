@@ -27,6 +27,11 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Sets up the necessary state when the form is loaded.
+        /// </summary>
+        /// <param name="sender">The control that fired the event.</param>
+        /// <param name="e">The event specific arguments.</param>
         private void Form1_Load(object sender, EventArgs e)
         {
             dataGridView.Hide();
@@ -62,16 +67,12 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
 
         /// <summary>
         /// The primary button control that generates the salary breakdown in a display grid.
-        /// 1) It checks whether the salary input is not empty, populates a model called employeedetails with the values associated with the employee.
-        /// 2) Collects the addition and the deduction components that the user has added from the UI(form) in userAdditionComponents and userDeductionComponents lists respectively.
-        /// 3) The method ComputeRules() computes the static components from the web.config and dynamic components from the form input on the salary input and stores them.
-        /// 4) The method PopulateGrid() is responsible for filling the display grid with the calculated components (salary Breakdown) that is displayed to the user.
-        /// 5) The method CollectTemplateData() is responsible for preparing the html template that will be sent to the employee. Values which are
-        /// to be added to the template are represented by placeholders which are replaced with the actual values in the method flow.
-        /// 6)The method SendTemplateData() is responsible for creating a pdf from the html template and setting up the smtp mail parameters to
-        /// deliver the salary slip in pdf format to the employee.
-        /// 7) The method DeleteSalarySlips() is responsible for deleting the salary slips from the local store as soon as the mail is delivered
-        /// to the employee.
+        /// 1) It checks whether the salary input is not empty, populates a model called initialData with the values associated with the employee.
+        /// 2) Collects the addition and the deduction components that the user has added from the UI(form) in userAdditionComponents and userDeductionComponents 
+        ///    lists respectively and adds them to the initialData model.
+        /// 3) The SalarySlipProcess() method of FormInput is then invoked to start the salary slip computation process.
+        /// 4) The computedRules property of initialData model is used to populate the grid shown to the user.
+        /// 5) The method PopulateGrid() is responsible for filling the display grid with the calculated components (salary Breakdown) that is displayed to the user.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -171,39 +172,22 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
             return userRules;
         }
 
-        /// <summary>
-        /// This event handles the validation of a addition or deduction rule entered by a user in the (name,value) format.
-        /// </summary>
-        /// <param name="sender">The control that fired the event.</param>
-        /// <param name="e">Event arguments.</param>
-        private void validateRuleName_Validation(object sender, CancelEventArgs e)
-        {
-            TextBox senderControl = (TextBox)sender;
-            string textBoxInput = senderControl.Text.TrimStart(' ').TrimEnd(' '); //check line for first if case.
-            if (string.IsNullOrEmpty(textBoxInput))
-            {
-                MessageBox.Show(string.Format("No value entered for text box {0}", senderControl.Name), "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                senderControl.Focus();
-            }
-            else if (!(RegularExpressionValidator.IsValidComponentValuePair(textBoxInput)))
-            {
-                MessageBox.Show(string.Format("The Name,Value pair {0} of textbox {1} is not in proper format", senderControl.Text, senderControl.Name), "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                senderControl.Focus();
-            }
-        }
 
         /// <summary>
-        /// This method is responsible for populating the grid with the calculated components, both statically derived from the web.config file
+        /// 1) This method is responsible for populating the grid with the calculated components, both statically derived from the web.config file
         /// as well as components entered by the user(inclusive of addition and deduction components). In general, it shows the salary breakup for
         /// a specific employee.
+        /// 2)
         /// </summary>
         /// <param name="computedRules">The computed rules from both web.config file(statically defined) and user inputs (addition and/or subtraction components) based
         /// on the employee's salary.</param>
         /// <param name="userAdditionComponents">The list of rules extracted from the addition component category that is entered by the user.</param>
-        /// <param name="userDeductionComponents">The list of rukes extracted from the deduction component category that is entered by the user.</param>
+        /// <param name="userDeductionComponents">The list of rules extracted from the deduction component category that is entered by the user.</param>
         /// <returns></returns>
         private ICollection<Rules> PopulateGrid(ICollection<Rules> computedRules, ICollection<Rules> userAdditionComponents, ICollection<Rules> userDeductionComponents)
         {
+            int computedRuleCounter = 0;
+            int subtractiontotalRowsCount = 0;
             decimal additionSum = 0.0m;
             decimal subtractionSum = 0.0m;
             DataGridView dataGridView = this.dataGridView;
@@ -219,101 +203,117 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                 new DataColumn(Constants.subtraction, typeof(string)),
                 new DataColumn(Constants.subtractionTotal, typeof(decimal))});
 
+                int additiontotalRowsCount = 0;
 
-                        int additiontotalRowsCount = 0;
-                        if ((additionSectionCollection != null) && (additionSectionCollection.Count > 0))
+
+                if ((additionSectionCollection != null) && (additionSectionCollection.Count > 0))
+                {
+                    /*If the list of computed rules has the component corresponding to the addition rules from the app.config file
+                    represented by additionSectionCollection, only then the count is incremented. This is done because all the
+                    addition rules in additionSectionCollection may not be present in computedRules collection if calculations
+                    require that a rule may be omitted (For e.g. if the percent values of the rules sum up to be 100%, then the 
+                    rule "balance" won't apply, even though it will still be a part of additionSectionCollection .*/
+                    additiontotalRowsCount = computedRules.Where(a => (additionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
+                }
+
+                //Add the user defined addition components' count.
+                if ((userAdditionComponents != null) && (userAdditionComponents.Count > 0))
+                {
+                    additiontotalRowsCount += userAdditionComponents.Count;
+                }
+
+                //Adding addition components to the data table which is to be added to the grid.
+                for (int i = 0; i < additiontotalRowsCount; i++)
+                {
+                    object[] additionArray = new object[2];
+                    additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleName;
+                    additionArray[1] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleValue;
+                    additionSum += Convert.ToDecimal(additionArray[1]);
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow.ItemArray = additionArray;
+                    dataTable.Rows.Add(dataRow);
+                }
+
+              
+                if ((subtractionSectionCollection != null) && (subtractionSectionCollection.Count > 0))
+                {
+                    /*If the list of computed rules has the component corresponding to the subtraction rules from the app.config file
+                  represented by subtractionSectionCollection, only then the count is incremented. This is done because all the
+                  addition rules in subtractionSectionCollection may not be present in computedRules collection if calculations
+                  require that a rule may be omitted */
+                    subtractiontotalRowsCount = computedRules.Where(a => (subtractionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
+                }
+
+                //Add the user defined subtraction components' count.                
+                if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
+                {
+                    subtractiontotalRowsCount += userDeductionComponents.Count;
+                }
+
+                if (dataTable.Rows.Count != 0)
+                {
+                    for (int i = 0; i < subtractiontotalRowsCount; i++)
+                    {
+                        //Start adding the subtraction components aligned to the columns subtraction and subtractiontotal.
+                        if (dataTable.Rows.Count < subtractiontotalRowsCount)
                         {
-                            additiontotalRowsCount = computedRules.Where(a => (additionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
+                            break;
                         }
+                        dataTable.Rows[i][Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
+                        dataTable.Rows[i][Constants.subtractionTotal] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleValue;
+                        computedRuleCounter++;
+                        subtractionSum += Convert.ToDecimal(dataTable.Rows[i][Constants.subtractionTotal]);
+                     }
 
-                        if ((userAdditionComponents != null) && (userAdditionComponents.Count > 0))
+                    //If there are more subtraction components than the addition component, then start a new row given by
+                    //the location computedRuleCounter.
+                     if (computedRuleCounter != subtractiontotalRowsCount)
+                     {
+                        for (int i = computedRuleCounter; i < subtractiontotalRowsCount; i++)
                         {
-                            additiontotalRowsCount += userAdditionComponents.Count;
-                        }
-
-                        for (int i = 0; i < additiontotalRowsCount; i++)
-                        {
-                            object[] additionArray = new object[2];
-                            additionArray[0] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleName;
-                            additionArray[1] = computedRules.Where(a => a.ComputationName == ComputationVariety.ADDITION && a.RuleName != Constants.grossSalary && a.RuleName != Constants.netPay).ElementAt(i).RuleValue;
-                            additionSum += Convert.ToDecimal(additionArray[1]);
                             DataRow dataRow = dataTable.NewRow();
-                            dataRow.ItemArray = additionArray;
+                            dataRow[Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
+                            dataRow[Constants.subtractionTotal] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleValue;
+                            subtractionSum += Convert.ToDecimal(dataRow[Constants.subtractionTotal]);
                             dataTable.Rows.Add(dataRow);
                         }
+                    }
+              }
+             else
+             {
+                //If there are no existing rows in the table. This may happen when there are no addition components.
+                for (int i = 0; i < subtractionSectionCollection.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow[Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
+                    dataRow[Constants.subtractionTotal] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleValue;
+                    subtractionSum += Convert.ToDecimal(dataRow[Constants.subtractionTotal]);
+                    dataTable.Rows.Add(dataRow);
+                }
+             }
 
-                        int computedRuleCounter = 0;
-                        int subtractiontotalRowsCount = 0;
-                        if ((subtractionSectionCollection != null) && (subtractionSectionCollection.Count > 0))
-                        {
-                            subtractiontotalRowsCount = computedRules.Where(a => (subtractionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
-                        }
-
-                        if ((userDeductionComponents != null) && (userDeductionComponents.Count > 0))
-                        {
-                            subtractiontotalRowsCount += userDeductionComponents.Count;
-                        }
-
-                        if (dataTable.Rows.Count != 0)
-                        {
-                            for (int i = 0; i < subtractiontotalRowsCount; i++)
-                            {
-                                //If there are more subtraction components than the addition component or there are only subtraction components.
-                                if (dataTable.Rows.Count < subtractiontotalRowsCount)
-                                {
-                                    break;
-                                }
-                                dataTable.Rows[i][Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
-                                dataTable.Rows[i][Constants.subtractionTotal] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleValue;
-                                computedRuleCounter++;
-                                subtractionSum += Convert.ToDecimal(dataTable.Rows[i][Constants.subtractionTotal]);
-                            }
-
-                            if (computedRuleCounter != subtractiontotalRowsCount)
-                            {
-                                for (int i = computedRuleCounter; i < subtractiontotalRowsCount; i++)
-                                {
-                                    DataRow dataRow = dataTable.NewRow();
-                                    dataRow[Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
-                                    dataRow[Constants.subtractionTotal] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleValue;
-                                    subtractionSum += Convert.ToDecimal(dataRow[Constants.subtractionTotal]);
-                                    dataTable.Rows.Add(dataRow);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //If there are no existing rows in the table.
-                            for (int i = 0; i < subtractionSectionCollection.Count; i++)
-                            {
-                                DataRow dataRow = dataTable.NewRow();
-                                dataRow[Constants.subtraction] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleName;
-                                dataRow[Constants.subtractionTotal] = computedRules.Where(a => a.ComputationName == ComputationVariety.SUBTRACTION).ElementAt(i).RuleValue;
-                                subtractionSum += Convert.ToDecimal(dataRow[Constants.subtractionTotal]);
-                                dataTable.Rows.Add(dataRow);
-                            }
-                        }
-                    //End of subtraction.
-
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        DataRow totalDataRow = null;
-                        var additionDataRows = dataTable.AsEnumerable()
+            if (dataTable.Rows.Count > 0)
+            {
+                //Makes sure that there are values in the addition and additionTotal columns of the data table.
+                DataRow totalDataRow = null;
+                var additionDataRows = dataTable.AsEnumerable()
                             .Where(w => (w.Field<string>(Constants.addition) != null && w.Field<string>(Constants.addition) != string.Empty)
                              && (w.Field<decimal>(Constants.additionTotal) != null))
-                            .Select(a => a.Field<string>(Constants.addition)); //Complete
+                            .Select(a => a.Field<string>(Constants.addition));
 
-                        var subtractionDataRows = dataTable.AsEnumerable()
+                //Makes sure that there are values in the subtraction and subtractionTotal columns of the data table.
+                var subtractionDataRows = dataTable.AsEnumerable()
                             .Where(w => (w.Field<string>(Constants.subtraction) != null && w.Field<string>(Constants.subtraction) != string.Empty)
                              && (w.Field<decimal>(Constants.subtractionTotal) != null))
                             .Select(a => a.Field<string>(Constants.subtraction));
 
-                        if (additionDataRows != null && additionDataRows.Count() > 0)
-                        {
-                            totalDataRow = dataTable.NewRow();
-                            totalDataRow[Constants.addition] = Constants.grossSalary;
-                            totalDataRow[Constants.additionTotal] = additionSum;
-                            computedRules.Add(
+                //If there are values in addition and additionTotal columns, then add the gross salary component and its value to the data table.
+                if (additionDataRows != null && additionDataRows.Count() > 0)
+                {
+                    totalDataRow = dataTable.NewRow();
+                    totalDataRow[Constants.addition] = Constants.grossSalary;
+                    totalDataRow[Constants.additionTotal] = additionSum;
+                    computedRules.Add(
                                new Rules
                                {
                                    ComputationName = ComputationVariety.ADDITION,
@@ -321,53 +321,54 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                                    RuleValue = additionSum
                                }
                              );
-                            dataTable.Rows.Add(totalDataRow);
-                        }
-                        if (subtractionDataRows != null && subtractionDataRows.Count() > 0)
-                        {
+                    dataTable.Rows.Add(totalDataRow);
+                 }
 
-                            if (totalDataRow == null)
-                            {
-                                totalDataRow = dataTable.NewRow();
-                                dataTable.Rows.Add(totalDataRow);
-                            }
-                            //totalDataRow[Constants.subtractionTotal] = additionSum - subtractionSum; //change
-                            totalDataRow[Constants.subtraction] = Constants.totalDeduction;
-                            totalDataRow[Constants.subtractionTotal] = subtractionSum;
-                            computedRules.Add(
+                //If there are values in subtraction and subtractionTotal columns, then add the total deduction component and its value to the data table.
+                 if (subtractionDataRows != null && subtractionDataRows.Count() > 0)
+                 {
+
+                    if (totalDataRow == null)
+                    {
+                        totalDataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(totalDataRow);
+                    }
+                    totalDataRow[Constants.subtraction] = Constants.totalDeduction;
+                    totalDataRow[Constants.subtractionTotal] = subtractionSum;
+                    computedRules.Add(
                                 new Rules
                                 {
                                     ComputationName = ComputationVariety.SUBTRACTION,
                                     RuleName = Constants.subtractionTotal,
-                                    // RuleValue = additionSum - subtractionSum // change
                                     RuleValue = subtractionSum
                                 });
-                        }
-                        if (additionSum >= 0 && subtractionSum >= 0)
-                        {
-                            DataRow netPayDataRow = dataTable.NewRow();
-                            netPayDataRow[Constants.addition] = Constants.netPay;
-                            netPayDataRow[Constants.additionTotal] = Decimal.Round(additionSum - subtractionSum, 2);
-                            dataTable.Rows.Add(netPayDataRow);
-                            computedRules.Add(
+                 }
+
+                /*If the sum of all the addition components and subtraction components are greater than zero, then add the net pay component
+                and it's value to the data table.*/
+                 if (additionSum >= 0 && subtractionSum >= 0)
+                 {
+                    DataRow netPayDataRow = dataTable.NewRow();
+                    netPayDataRow[Constants.addition] = Constants.netPay;
+                    netPayDataRow[Constants.additionTotal] = Decimal.Round(additionSum - subtractionSum, 2);
+                    dataTable.Rows.Add(netPayDataRow);
+                    computedRules.Add(
                                 new Rules
                                 {
                                     ComputationName = ComputationVariety.ADDITION,
                                     RuleName = Constants.netPay,
                                     RuleValue = Decimal.Round(additionSum - subtractionSum, 2)
                                 });
-                        }
-                    }
-                    dataGridView.DataSource = dataTable;
-                    this.Width = 583;
-                    this.Height = 550;
-                    dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-                    dataGridView.Show();
-                //}
-
+                  }
             }
-            return computedRules;
+            dataGridView.DataSource = dataTable;
+            this.Width = 583;
+            this.Height = 550;
+            dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView.Show();
         }
+        return computedRules;
+      }
 
         /// <summary>
         /// 1)The event that is fired when a user tries to add a new addition component from the user interface by clicking on the "AC" button.
@@ -538,46 +539,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                 MessageBox.Show("The entered salary is not in proper format", "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 salary.Focus();
             }
-        }
-
-        /// <summary>
-        /// This method validates the format of the user entered addition component.
-        /// </summary>
-        /// <param name="sender">The control that fired the event</param>
-        /// <param name="e">The arguments associated with the fired event.</param>
-        private void addComponentNumber_Validating(object sender, CancelEventArgs e)
-        {
-            //string inputText = addComponentNumber.Text.TrimStart().TrimEnd();
-            //if (string.IsNullOrEmpty(inputText))
-            //{
-            //    MessageBox.Show("No addition component count entered", "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    addComponentNumber.Focus();
-            //}
-            //else if (!(RegularExpressionValidator.IsValidComponentCount(inputText)))
-            //{
-            //    MessageBox.Show("Only 10 addition components are allowed", "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    addComponentNumber.Focus();
-            //}
-        }
-
-        /// <summary>
-        /// This method validates the format of the user entered deduction component.
-        /// </summary>
-        /// <param name="sender">The control that fired the event</param>
-        /// <param name="e">The arguments associated with the fired event.</param>
-        private void deductComponentNumber_Validating(object sender, CancelEventArgs e)
-        {
-            //string inputText = deductComponentNumber.Text.TrimStart().TrimEnd();
-            //if (string.IsNullOrEmpty(inputText))
-            //{
-            //    MessageBox.Show("No deduction component count entered", "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    deductComponentNumber.Focus();
-            //}
-            //else if (!(RegularExpressionValidator.IsValidComponentCount(inputText)))
-            //{
-            //    MessageBox.Show("Only 10 deduction components are allowed", "Salary Slip Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    deductComponentNumber.Focus();
-            //}
         }
     }
 }

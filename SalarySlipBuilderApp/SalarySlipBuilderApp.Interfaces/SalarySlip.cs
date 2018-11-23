@@ -29,7 +29,10 @@ namespace SalarySlipBuilderApp.Models
         {
             this._objInitialData = objInitialData;
         }
-                
+        
+        /// <summary>
+        /// Responsible for restricting the method flow and calling subsequent operations in a defined order to be executed.
+        /// </summary>
         public void SalarySlipProcess()
         {
             ComputeRules(_objInitialData.UserAdditionComponents, _objInitialData.UserDeductionComponents);
@@ -39,6 +42,21 @@ namespace SalarySlipBuilderApp.Models
             DeleteFileAfterSendingEmail();
         }
 
+        /// <summary>
+        /// 1) Collects the pre-defined addition and deduction components from the app.config file and holds them as a collection.
+        /// 2) From the collection, if a value of a component has a percent sign, then that is removed and formatted in a decimal form to
+        /// use it against the salary and the resuting value is added to the gross salary. If the value is not a percent, then the value
+        /// is simply added to the gross salary. There is a simultaneous check to see if the percent value adds up to be 100% in the variable
+        /// additionComponentPercentageTotal.
+        /// 3)In the next step, the user defined addition components values are extracted and added to the gross salary. 
+        /// 4)computedRules is the list which will contain the components at any point of time.
+        /// 5) In case of addition components,if the additionComponentPercentageTotal value is greater than equal to 100, then the "Balance"
+        /// component will not be added to computedRules.
+        /// 6) The same process applies for subtraction components except step 5.
+        /// 7) The gross salary, total deduction and net pay components are added towards the end.
+        /// </summary>
+        /// <param name="userAdditionComponents">The user defined addition components.</param>
+        /// <param name="userDeductionComponents">The user defined deduction/subtraction components.</param>
         void ComputeRules(ICollection<Rules> userAdditionComponents, ICollection<Rules> userDeductionComponents)
         {
             decimal grossSalary = 0.0m;
@@ -81,19 +99,6 @@ namespace SalarySlipBuilderApp.Models
 
                 }
 
-                //if (computedRules != null && computedRules.Count > 0)
-                //{
-                //    decimal remainingSalary = salary - grossSalary;
-                //    computedRules.Add(new Rules
-                //    {
-                //        ComputationName = ComputationVariety.ADDITION,
-                //        RuleName = Constants.balance,
-                //        RuleValue = remainingSalary
-                //    });
-                //    grossSalary += remainingSalary;
-                //}
-
-                //Test Code Start.
                 if (computedRules != null && computedRules.Count > 0)
                 {
                     if (additionComponentPercentageTotal < 100.00m)//add round
@@ -111,9 +116,7 @@ namespace SalarySlipBuilderApp.Models
                         }
                     }
                 }
-                //Test Code End.
 
-                //Add additional components to the gross salary.
                 if ((userAdditionComponents != null) && (userAdditionComponents.Count > 0))
                 {
                     decimal userAdditionComponentTotal = 0.0m;
@@ -155,7 +158,7 @@ namespace SalarySlipBuilderApp.Models
                         RuleName = component,
                         RuleValue = componentAmount
                     });
-                    subtractionTotal += componentAmount; //newly added.
+                    subtractionTotal += componentAmount;
                     componentValueAsString.Clear();
                 }
 
@@ -169,7 +172,7 @@ namespace SalarySlipBuilderApp.Models
                             RuleName = component.RuleName,
                             RuleValue = component.RuleValue
                         });
-                        subtractionTotal += component.RuleValue; //newly added.
+                        subtractionTotal += component.RuleValue;
                     }
                 }
 
@@ -199,6 +202,18 @@ namespace SalarySlipBuilderApp.Models
             _objInitialData.ComputedRules = computedRules;
         }
 
+        /// <summary>
+        /// 1) Obtains a stream to the "SalarySlipTemplate.html" file from the "TemplateApp" application.
+        /// 2) Replaces the pre-defined placeholders in the SalarySlipTemplate.html file with the employee details.
+        /// 3) additionPayDetails list contains all the addition components except gross salary and netpay. Similarly, deductionPayDetails
+        /// contains all the deduction components except the deduction total.
+        /// 4) The additionTotal and the deductionTotal contain the values of the sum of all the addition components(gross salary) and the 
+        /// sum of all deduction components (deduction total) respectively.
+        /// 5) The additionPayDetails and the deductionPayDetails are used first to contruct the html row and column structurehaving all 
+        /// the components except gross salary, total deduction and net pay. The three mentioned components are placed towards the end of
+        /// the structure.
+        /// 6)The net pay in words, the header and the footer values are also added to the structure towards the end.
+        /// </summary>
         void CreateTemplate()
         {
             int beginCounter = -1;
@@ -325,9 +340,16 @@ namespace SalarySlipBuilderApp.Models
             _objInitialData.TemplateContent = templateBody;
         }
 
+        /// <summary>
+        /// 1) Extracts the temporary folder path in the machine and appends a sub folder name called "SalarySlips" where the
+        /// temporary salary slip files are to be stored (pdfFilePath).
+        /// 2) Constructs the pdf file name to be given to the file which will be converted from its html equivalent. This name 
+        /// is then combined with the pdfFilePath to reresent the complete path where the pdf file is to be created.
+        /// 3) Invokes the HtmlToPdfConverter() file to make the pdf file from its html equivalent.
+        /// </summary>
+        /// <param name="templateContent"></param>
         void CreateFileForTemplate(string templateContent)
         {
-            //string pdfFilePath = @"e:\SalarySlips\";
             string pdfFilePath = string.Format("{0}{1}", Path.GetTempPath(), "SalarySlips");
             string pdfFileName = string.Format("{0}{1:dd-MMM-yyyy HH-mm-ss-fff}{2}", "SalarySlip", DateTime.Now, ".pdf");
             string finalPdfPath = Path.Combine(pdfFilePath, pdfFileName);
@@ -336,9 +358,15 @@ namespace SalarySlipBuilderApp.Models
             _objInitialData.PdfFilePath = pdfFilePath;
         }
 
+        /// <summary>
+        /// 1) Extracts sender credentials from the application configuration file.
+        /// 2) The attachment properties are configured using "FullPdfPath" which is the nothing but the complete salary slip file path 
+        /// and added as an attachment to the mail instance.
+        /// 3) The mail properties are configured.
+        /// 4) The smtp properties are configured.
+        /// </summary>
         void SendEmail()
         {
-            bool isMailSent = false;
             string senderID = ConfigurationManager.AppSettings[Constants.senderEmailId];
             string senderPassword = ConfigurationManager.AppSettings[Constants.senderEmailPassword];
             RemoteCertificateValidationCallback orgCallback = ServicePointManager.ServerCertificateValidationCallback;
@@ -369,7 +397,6 @@ namespace SalarySlipBuilderApp.Models
                 smtp.Port = Convert.ToInt32(ConfigurationManager.AppSettings[Constants.smtpPort]);
                 smtp.EnableSsl = Convert.ToBoolean(ConfigurationManager.AppSettings[Constants.enableSsl]);
                 smtp.Send(mail);
-                isMailSent = true;
             }
             catch (Exception ex)
             {
@@ -377,6 +404,10 @@ namespace SalarySlipBuilderApp.Models
             }
         }
 
+        /// <summary>
+        /// Check if each salary slip file, presently created or existing, is locked or not and delete if unlocked,
+        /// since a locked file cannot be deleted.
+        /// </summary>
         void DeleteFileAfterSendingEmail()
         {
             try

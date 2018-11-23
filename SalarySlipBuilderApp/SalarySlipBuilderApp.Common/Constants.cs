@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Common
 {
+    /// <summary>
+    /// The class defines a set of constants to be used throughout the application.
+    /// </summary>
     public static class Constants
     {
         public const string additionSection = "rules/addition";

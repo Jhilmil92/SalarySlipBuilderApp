@@ -11,6 +11,10 @@ namespace TemplateApp.TemplateApp.Classes
     public class TemplateProvider:ITemplateProvider
     {
         private StreamReader _stream;
+        /// <summary>
+        /// Obtains the assembly using reflection and returns the stream to the html template SalarySlipTemplate.html.
+        /// </summary>
+        /// <returns>A stream handle of SalarySlipTemplate.html</returns>
         public System.IO.StreamReader SupplyTemplateStream()
         {
             var currentAssembly = typeof(ITemplateProvider).Assembly;
@@ -18,6 +22,9 @@ namespace TemplateApp.TemplateApp.Classes
             return _stream;
         }
 
+        /// <summary>
+        /// Disposes/Frees the stream which is an unmanaged resource.
+        /// </summary>
         public void Dispose()
         {
             _stream.Dispose();

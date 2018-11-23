@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace SalarySlipBuilderApp.Models
 {
+    /// <summary>
+    /// A class having properties that define the employee data and necessary values required to carry out 
+    /// the salary slip computation process.
+    /// </summary>
     public class InitialData
     {
         public string AssociateCode { get; set; }

@@ -215,7 +215,6 @@
             this.addComponentNumber.Name = "addComponentNumber";
             this.addComponentNumber.Size = new System.Drawing.Size(111, 20);
             this.addComponentNumber.TabIndex = 0;
-            this.addComponentNumber.Validating += new System.ComponentModel.CancelEventHandler(this.addComponentNumber_Validating);
             // 
             // deductInnerPanel
             // 
@@ -242,7 +241,6 @@
             this.deductComponentNumber.Name = "deductComponentNumber";
             this.deductComponentNumber.Size = new System.Drawing.Size(111, 20);
             this.deductComponentNumber.TabIndex = 2;
-            this.deductComponentNumber.Validating += new System.ComponentModel.CancelEventHandler(this.deductComponentNumber_Validating);
             // 
             // emailLabel
             // 

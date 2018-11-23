@@ -89,6 +89,11 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
             return footerContent.ToString();
         }
 
+        /// <summary>
+        /// Sets the permission to the path where the salary slip is to be temporarily stored in the machine's
+        /// temp folder.
+        /// </summary>
+        /// <param name="pdfFilePath">The path where the permissions are to be defined</param>
         private static void SetPathPermission(string pdfFilePath)
         {
             var directoryInfo = new DirectoryInfo(pdfFilePath);
@@ -104,6 +109,11 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
             directoryInfo.SetAccessControl(accessControl);
         }
 
+        /// <summary>
+        /// Checks whether the file is still being accessed by another process/thread or not.
+        /// </summary>
+        /// <param name="file">The file which is to be checked.</param>
+        /// <returns>Returns a true value if the file is locked, false otherwise.</returns>
         public static Boolean IsFileLocked(FileInfo file)
         {
             FileStream stream = null;
@@ -140,30 +150,6 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Classes
         public static bool OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             return true;
-        }
-        public static bool DeleteSalarySlips(string pdfFilePath)
-        {
-            bool isFileDeleted = false;
-            try
-            {
-                if (Directory.Exists(pdfFilePath))
-                {
-                    var directory = new DirectoryInfo(pdfFilePath);
-                    foreach (var file in directory.GetFiles())
-                    {
-                        if (!(IsFileLocked(file)))
-                        {
-                            file.Delete();
-                            isFileDeleted = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            return isFileDeleted;
         }
     }
 }
