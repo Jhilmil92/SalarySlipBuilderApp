@@ -213,7 +213,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                     addition rules in additionSectionCollection may not be present in computedRules collection if calculations
                     require that a rule may be omitted (For e.g. if the percent values of the rules sum up to be 100%, then the 
                     rule "balance" won't apply, even though it will still be a part of additionSectionCollection .*/
-                    additiontotalRowsCount = computedRules.Where(a => (additionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
+                    additiontotalRowsCount = computedRules.Where(a => (a.ComputationName == ComputationVariety.ADDITION) && (additionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
                 }
 
                 //Add the user defined addition components' count.
@@ -241,7 +241,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
                   represented by subtractionSectionCollection, only then the count is incremented. This is done because all the
                   addition rules in subtractionSectionCollection may not be present in computedRules collection if calculations
                   require that a rule may be omitted */
-                    subtractiontotalRowsCount = computedRules.Where(a => (subtractionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
+                    subtractiontotalRowsCount = computedRules.Where(a => (a.ComputationName == ComputationVariety.SUBTRACTION) && (subtractionSectionCollection.Keys.Cast<string>().Contains(a.RuleName))).Count();
                 }
 
                 //Add the user defined subtraction components' count.                
@@ -410,7 +410,7 @@ namespace SalarySlipBuilderApp.SalarySlipBuilderApp.Forms
 
         /// <summary>
         /// 1)The event that is fired when a user tries to add a new deduction component from the user interface by clicking on the "AC" button.
-        /// 2)A new textbox is created and its y component is incremented by 20 points each time to position them vertically. This is achieved
+        /// 2)A new textbox is created and its 'y' component is incremented by 20 points each time to position them vertically. This is achieved
         /// by first checking whether the number of controls is greater than one because the first textbox doesn't need a change in the position 
         /// the y coordinates. 
         /// 3)From the second component onwards, the location of the last added control is fetched and 20 points are added to it

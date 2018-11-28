@@ -81,11 +81,13 @@ namespace SalarySlipBuilderApp.Models
                             componentValueAsString.Append(additionSectionCollection[component]);
                             componentAmount = Convert.ToDecimal(componentValueAsString.Remove(componentValueAsString.Length - 1, 1).ToString());
                             additionComponentPercentageTotal += componentAmount;
-                            componentAmount = Decimal.Round(((componentAmount) / 100) * salary, 2);
+                            //componentAmount = Decimal.Round(((componentAmount) / 100) * salary, 2);
+                            componentAmount = Convert.ToDecimal((((componentAmount) / 100) * salary).ToString("0.00"));//add
                         }
                         else if (!(char.IsLetter(additionSectionCollection[component].ToString(), 0)))
                         {
-                            componentAmount = Convert.ToDecimal(additionSectionCollection[component]);
+                            //componentAmount = Convert.ToDecimal(additionSectionCollection[component]);
+                            componentAmount = Convert.ToDecimal(string.Format("{0:0.00}", Convert.ToDecimal(additionSectionCollection[component]))); //add
                         }
                         computedRules.Add(new Rules
                         {
@@ -105,12 +107,14 @@ namespace SalarySlipBuilderApp.Models
                     {
                         if (additionSectionCollection.AllKeys.Contains(Constants.balance))
                         {
-                            remainingSalary = salary - grossSalary;
+                            //remainingSalary = salary - grossSalary; 
+                            remainingSalary = Convert.ToDecimal((salary - grossSalary).ToString("0.00"));  //add
+
                             computedRules.Add(new Rules
                             {
                                 ComputationName = ComputationVariety.ADDITION,
                                 RuleName = Constants.balance,
-                                RuleValue = remainingSalary
+                                RuleValue = remainingSalary 
                             });
                             grossSalary += remainingSalary;
                         }
@@ -126,12 +130,14 @@ namespace SalarySlipBuilderApp.Models
                         {
                             ComputationName = component.ComputationName,
                             RuleName = component.RuleName,
-                            RuleValue = component.RuleValue
+                            //RuleValue = component.RuleValue 
+                            RuleValue = Convert.ToDecimal(component.RuleValue.ToString("0.00")) //add
                         }
                             );
-                        userAdditionComponentTotal += component.RuleValue;
+                        //userAdditionComponentTotal += component.RuleValue; 
+                        userAdditionComponentTotal += Convert.ToDecimal(component.RuleValue.ToString("0.00")); //add
                     }
-                    grossSalary += userAdditionComponentTotal;
+                    grossSalary += userAdditionComponentTotal; 
                 }
 
 
@@ -146,11 +152,13 @@ namespace SalarySlipBuilderApp.Models
                     {
                         componentValueAsString.Append(subtractionSectionCollection[component]);
                         componentAmount = Convert.ToDecimal(componentValueAsString.Remove(componentValueAsString.Length - 1, 1).ToString());
-                        componentAmount = Decimal.Round(((componentAmount) / 100) * grossSalary, 2);
+                        //componentAmount = Decimal.Round(((componentAmount) / 100) * grossSalary, 2);
+                        componentAmount = Convert.ToDecimal((((componentAmount) / 100) * grossSalary).ToString("0.00"));//add
                     }
                     else if (!(char.IsLetter(subtractionSectionCollection[component].ToString(), 0)))
                     {
-                        componentAmount = Convert.ToDecimal(subtractionSectionCollection[component]);
+                        //componentAmount = Convert.ToDecimal(subtractionSectionCollection[component]);
+                        componentAmount = Convert.ToDecimal(string.Format("{0:0.00}",Convert.ToDecimal(subtractionSectionCollection[component])));//add
                     }
                     computedRules.Add(new Rules
                     {
@@ -170,9 +178,11 @@ namespace SalarySlipBuilderApp.Models
                         {
                             ComputationName = component.ComputationName,
                             RuleName = component.RuleName,
-                            RuleValue = component.RuleValue
+                            //RuleValue = component.RuleValue
+                            RuleValue = Convert.ToDecimal(component.RuleValue.ToString("0.00")) //add
                         });
-                        subtractionTotal += component.RuleValue;
+                        //subtractionTotal += component.RuleValue;
+                        subtractionTotal += Convert.ToDecimal(component.RuleValue.ToString("0.00"));//add
                     }
                 }
 
@@ -195,7 +205,7 @@ namespace SalarySlipBuilderApp.Models
                     {
                         ComputationName = ComputationVariety.ADDITION,
                         RuleName = Constants.netPay,
-                        RuleValue = (grossSalary - subtractionTotal)
+                        RuleValue = (grossSalary - subtractionTotal) 
                     });
                 }
             }
@@ -326,9 +336,10 @@ namespace SalarySlipBuilderApp.Models
             genericBuilder.Clear();
 
             var details = _objInitialData.ComputedRules.Where(a => a.RuleName == Constants.netPay).Select(a => a).ToList();
-            var ruleValue = details[0].RuleValue.ToString("#,#.##", System.Globalization.CultureInfo.CreateSpecificCulture("hi-IN"));
-            var ruleValueinDecimal = Convert.ToDecimal(ruleValue);
-            genericBuilder.Append(string.Format("<tr class=\"alignment-style\"><td colspan=\"3\">{0}:</td><td colspan=\"1\">{1}</td></tr>", details[0].RuleName, ruleValue));
+            //var ruleValue = details[0].RuleValue.ToString("#,#.##", System.Globalization.CultureInfo.CreateSpecificCulture("hi-IN"));
+            //var ruleValueinDecimal = Convert.ToDecimal(ruleValue);
+            var ruleValueinDecimal = details[0].RuleValue;
+            genericBuilder.Append(string.Format("<tr class=\"alignment-style\"><td colspan=\"3\">{0}:</td><td colspan=\"1\">{1}</td></tr>", details[0].RuleName, ruleValueinDecimal));
             templateBody = templateBody.Replace("$netPay", genericBuilder.ToString());
             genericBuilder.Clear();
             var value = (NumberToWordsExtension.ToWords((long)ruleValueinDecimal)).Titleize();
